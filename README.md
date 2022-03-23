@@ -31,9 +31,9 @@ After collecting the sysdiagnose log files, search for the Wi-Fi log file. It sh
 Extract the log file from the compressed `wifimanager-03-11-2022__11/24/56.log.tgz` file and use this log file to get the necessary information.
 
 * `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv` parses the log file and produces the output of RSSI information into the output CSV file.
-* `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --since "2022-03-11 11:40:13.277"` parses the log file after the starting date and produces the output of RSSI information into the output CSV file.
-* `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --till "2022-03-11 11:42:13.277"` parses the log file till the ending date and produces the output of RSSI information into the output CSV file.
-* `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --since "2022-03-11 11:40:13.277" --till "2022-03-11 11:42:13.277"` parses the log file in the provided date range and produces the output of RSSI information into the output CSV file.
+* `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --since "03/11/2022 11:40:13.277"` parses the log file after the starting date and produces the output of RSSI information into the output CSV file.
+* `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --till "03/11/2022 11:42:13.277"` parses the log file till the ending date and produces the output of RSSI information into the output CSV file.
+* `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --since "03/11/2022 11:40:13.277" --till "03/11/2022 11:42:13.277"` parses the log file in the provided date range and produces the output of RSSI information into the output CSV file.
 
 ## Example 
 
