@@ -55,7 +55,7 @@ date,rssi,ssid
 ## Help
 
 ```
-% iosrssi -help
+% iosrssi help
 OVERVIEW: A Swift command-line tool to parse iOS device sysdiagnose log files and retrieve the wifi network RSSI statistics.
 
 USAGE: iosrssi <subcommand>
