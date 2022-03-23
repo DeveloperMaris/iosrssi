@@ -35,6 +35,23 @@ Extract the log file from the compressed `wifimanager-03-11-2022__11/24/56.log.t
 * `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --till "2022-03-11 11:42:13.277"` parses the log file till the ending date and produces the output of RSSI information into the output CSV file.
 * `iosrssi parse /path/to/wifimanager.log /path/to/output/rssi.csv --since "2022-03-11 11:40:13.277" --till "2022-03-11 11:42:13.277"` parses the log file in the provided date range and produces the output of RSSI information into the output CSV file.
 
+## Example 
+
+Command-line tool will generate a `.csv` file output, like this:
+
+```
+date,rssi,ssid
+2022-03-11 11:26:45.276,-47,ALHN-E1DA
+2022-03-11 11:26:50.288,-48,ALHN-E1DA
+2022-03-11 11:26:55.302,-43,ALHN-E1DA
+2022-03-11 11:27:00.317,-46,ALHN-E1DA
+2022-03-11 11:27:05.324,-52,ALHN-E1DA
+2022-03-11 11:27:11.986,-55,EDGE-F52s
+2022-03-11 11:27:17.021,-56,EDGE-F52s
+2022-03-11 11:27:22.042,-55,EDGE-F52s
+2022-03-11 11:27:27.064,-56,EDGE-F52s
+```
+
 ## Help
 
 ```
