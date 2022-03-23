@@ -4,6 +4,14 @@ A command line tool for parsing iOS sysdiagnose Wi-Fi information and retrieving
 
 ## Installation
 
+### Homebrew
+
+```
+brew install developermaris/brew/iosrssi
+```
+
+### Manually
+
 To build and install the command line tool yourself, clone the repository and run `make install`:
 
 ```bash
