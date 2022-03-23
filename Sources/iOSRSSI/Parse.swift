@@ -34,10 +34,10 @@ struct Parse: ParsableCommand {
     @Argument(help: "The output file path for the parsed result file, should be a .csv format file")
     private var output: String
 
-    @Option(name: .shortAndLong, help: "The starting date and time of the logs when to start parsing. Format is \"yyyy-MM-dd HH:mm:ss.SSS\". For example: 2022-03-11 11:40:13.277")
+    @Option(name: .shortAndLong, help: "The starting date and time of the logs when to start parsing. Format is \"MM/dd/yyyy HH:mm:ss.SSS\". For example: 03/11/2022 11:40:13.277")
     private var since: String?
 
-    @Option(name: .shortAndLong, help: "The ending date and time of the logs when to stop parsing. Format is \"yyyy-MM-dd HH:mm:ss.SSS\". For example: 2022-03-11 14:50:09.002")
+    @Option(name: .shortAndLong, help: "The ending date and time of the logs when to stop parsing. Format is \"MM/dd/yyyy HH:mm:ss.SSS\". For example: 03/11/2022 14:50:09.002")
     private var till: String?
 
     @Flag(name: .long, help: "Show extra logging for debugging purposes")
@@ -200,6 +200,6 @@ struct Parse: ParsableCommand {
             return nil
         }
 
-        return Self.outputDateFormatter.date(from: string)
+        return Self.inputDateFormatter.date(from: string)
     }
 }

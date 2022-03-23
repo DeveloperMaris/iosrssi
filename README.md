@@ -80,8 +80,8 @@ ARGUMENTS:
   <output>                The output file path for the parsed result file, should be a .csv format file
 
 OPTIONS:
-  -s, --since <since>     The starting date and time of the logs when to start parsing. Format is "yyyy-MM-dd HH:mm:ss.SSS". For example: 2022-03-11 11:40:13.277
-  -t, --till <till>       The ending date and time of the logs when to stop parsing. Format is "yyyy-MM-dd HH:mm:ss.SSS". For example: 2022-03-11 14:50:09.002
+  -s, --since <since>     The starting date and time of the logs when to start parsing. Format is "MM/dd/yyyy HH:mm:ss.SSS". For example: 03/11/2022 11:40:13.277
+  -t, --till <till>       The ending date and time of the logs when to stop parsing. Format is "MM/dd/yyyy HH:mm:ss.SSS". For example: 03/11/2022 14:50:09.002
   --verbose               Show extra logging for debugging purposes
   -h, --help              Show help information.
 ```
