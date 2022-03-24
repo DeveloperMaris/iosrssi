@@ -10,3 +10,6 @@ install:
 	test -d $(prefix)/bin || mkdir $(prefix)/bin
 	swift build --configuration release
 	install .build/release/iosrssi $(prefix)/bin/iosrssi
+
+clean:
+	rm -f $(prefix)/bin/iosrssi

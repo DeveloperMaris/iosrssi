@@ -6,6 +6,8 @@ A command line tool for parsing iOS sysdiagnose Wi-Fi information and retrieving
 
 ### Homebrew
 
+Using Homebrew is the suggested way of installing this tool.
+
 ```
 brew install developermaris/brew/iosrssi
 ```
@@ -20,7 +22,9 @@ cd iOSRSSI
 make install
 ```
 
-If you see the `Permission denied` error, please use `sudo make install`.
+Optionally, if you wish to uninstall this tool, run `make clean`.
+
+If you see the `Permission denied` error, please use `sudo` in front of the `make`, for example: `sudo make install`.
 
 ## Usage
 
