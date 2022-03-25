@@ -100,27 +100,31 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "parse"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/path/to/log/file.log"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/path/to/rssi.csv"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--since &quot;03/11/2022 11:40:13.277&quot;"
-            isEnabled = "YES">
+            argument = "--since &quot;03/11/2022 11:26:40.277&quot;"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--till &quot;03/11/2022 11:42:13.277&quot;"
-            isEnabled = "YES">
+            argument = "--till &quot;03/11/2022 11:27:40.277&quot;"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--verbose"
-            isEnabled = "YES">
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--version"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
