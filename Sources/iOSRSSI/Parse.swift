@@ -17,13 +17,6 @@ struct Parse: ParsableCommand {
         return formatter
     }()
 
-    private static let outputDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        // We need to be able to parse to 2022-03-11 11:24:59.908
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        return formatter
-    }()
-
     public static let configuration = CommandConfiguration(
         abstract: "Parse the wifi sysdiagnose log file to retrieve RSSI statistics."
     )
@@ -44,11 +37,13 @@ struct Parse: ParsableCommand {
     private var verbose = false
 
     func run() throws {
+        let start = CFAbsoluteTimeGetCurrent()
+
         if verbose {
             print("Input file path: \(input)")
             print("Output file path: \(output)")
-            print("Since date: \(String(describing: since))")
-            print("Till date: \(String(describing: till))")
+            print("Received since date: \(String(describing: since))")
+            print("Received till date: \(String(describing: till))")
         }
 
         // Generate URLs.
@@ -58,6 +53,11 @@ struct Parse: ParsableCommand {
         // Generate start and end dates if necessary.
         let startDate: Date = date(fromTerminal: since) ?? .distantPast
         let endDate: Date = date(fromTerminal: till) ?? .distantFuture
+
+        if verbose {
+            print("Using since date: \(String(describing: startDate))")
+            print("Using till date: \(String(describing: endDate))")
+        }
 
         // Parse the statistics and write to an output file.
         do {
@@ -73,6 +73,11 @@ struct Parse: ParsableCommand {
             if verbose {
                 print("Error: \(error.localizedDescription)")
             }
+        }
+
+        if verbose {
+            let diff = CFAbsoluteTimeGetCurrent() - start
+            print("Total time passed: \(diff) seconds.")
         }
     }
 
@@ -130,7 +135,7 @@ struct Parse: ParsableCommand {
                 continue
             }
 
-            let stats = Stats(date: date, rssi: rssi, ssid: wifi)
+            let stats = Stats(date: date, ssid: wifi, value: rssi)
             statistics.append(stats)
         }
 
@@ -151,12 +156,10 @@ struct Parse: ParsableCommand {
     ///   - formatter: Statistical record entity date formatter.
     func writeAsCSV(
         _ statistics: [Stats],
-        inFile url: URL,
-        formatter: DateFormatter = Self.outputDateFormatter
+        inFile url: URL
     ) throws {
         let encoder = CSVEncoder()
-        encoder.headers = ["date", "rssi", "ssid"]
-        encoder.dateStrategy = .formatted(formatter)
+        encoder.headers = ["date", "time", "network", "ssid", "measurement", "-dBm"]
         try encoder.encode(statistics, into: url)
     }
 

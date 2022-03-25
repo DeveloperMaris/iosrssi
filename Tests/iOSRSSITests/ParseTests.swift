@@ -95,7 +95,7 @@ class ParseTests: XCTestCase {
 
         // Then
         XCTAssertEqual(result[0].date, outputDate, "Result should contain the same date as provided.")
-        XCTAssertEqual(result[0].rssi, rssi, "Result should contain the same rssi as provided.")
+        XCTAssertEqual(result[0].value, rssi, "Result should contain the same rssi as provided.")
         XCTAssertEqual(result[0].ssid, wifi, "Result should contain the same wifi as provided.")
     }
 

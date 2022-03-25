@@ -111,11 +111,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--since &quot;2022-03-11 11:40:13.277&quot;"
+            argument = "--since &quot;03/11/2022 11:40:13.277&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--till &quot;2022-03-11 11:42:13.277&quot;"
+            argument = "--till &quot;03/11/2022 11:42:13.277&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
