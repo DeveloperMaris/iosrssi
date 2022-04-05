@@ -1,5 +1,5 @@
 //
-//  Statistics.swift
+//  RootCommand.swift
 //  
 //
 //  Created by Maris Lagzdins on 22/03/2022.
@@ -7,15 +7,15 @@
 
 import ArgumentParser
 
-struct Statistics: ParsableCommand {
+struct RootCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "iosrssi",
         abstract: """
             A Swift command-line tool to parse iOS device sysdiagnose \
             log files and retrieve the wifi network RSSI statistics.
             """,
-        version: "1.3.1",
-        subcommands: [Parse.self]
+        version: "1.4.0",
+        subcommands: [ParseCommand.self]
     )
 
     init() { }

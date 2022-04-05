@@ -7,4 +7,4 @@
 
 import Foundation
 
-Statistics.main()
+RootCommand.main()
