@@ -1,5 +1,5 @@
 //
-//  Parse.swift
+//  ParseCommand.swift
 //  
 //
 //  Created by Maris Lagzdins on 22/03/2022.
@@ -9,7 +9,7 @@ import ArgumentParser
 import CodableCSV
 import Foundation
 
-struct Parse: ParsableCommand {
+struct ParseCommand: ParsableCommand {
     private static let inputDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         // We need to be able to parse 03/11/2022 11:24:59.908
@@ -18,6 +18,7 @@ struct Parse: ParsableCommand {
     }()
 
     public static let configuration = CommandConfiguration(
+        commandName: "parse",
         abstract: "Parse the wifi sysdiagnose log file to retrieve RSSI statistics."
     )
 
@@ -39,12 +40,12 @@ struct Parse: ParsableCommand {
     func run() throws {
         let start = CFAbsoluteTimeGetCurrent()
 
-        if verbose {
-            print("Input file path: \(input)")
-            print("Output file path: \(output)")
-            print("Received since date: \(String(describing: since))")
-            print("Received till date: \(String(describing: till))")
-        }
+        verbosePrint("Start parsing...")
+
+        verbosePrint("Input file path: \(input)")
+        verbosePrint("Output file path: \(output)")
+        verbosePrint("Received since date: \(String(describing: since))")
+        verbosePrint("Received till date: \(String(describing: till))")
 
         // Generate URLs.
         let inputURL = URL(fileURLWithPath: input)
@@ -54,10 +55,8 @@ struct Parse: ParsableCommand {
         let startDate: Date = date(fromTerminal: since) ?? .distantPast
         let endDate: Date = date(fromTerminal: till) ?? .distantFuture
 
-        if verbose {
-            print("Using since date: \(String(describing: startDate))")
-            print("Using till date: \(String(describing: endDate))")
-        }
+        verbosePrint("Using since date: \(String(describing: startDate))")
+        verbosePrint("Using till date: \(String(describing: endDate))")
 
         // Parse the statistics and write to an output file.
         do {
@@ -70,15 +69,11 @@ struct Parse: ParsableCommand {
 
         } catch {
             print("File parsing failed.")
-            if verbose {
-                print("Error: \(error.localizedDescription)")
-            }
+            verbosePrint("Error: \(error.localizedDescription)")
         }
 
-        if verbose {
-            let diff = CFAbsoluteTimeGetCurrent() - start
-            print("Total time passed: \(diff) seconds.")
-        }
+        let diff = CFAbsoluteTimeGetCurrent() - start
+        verbosePrint("Total time passed: \(diff) seconds.")
     }
 
     /// A method to parse text and returns back a list of statistical records.
@@ -92,23 +87,38 @@ struct Parse: ParsableCommand {
         since startDate: Date = .distantPast,
         till endDate: Date = .distantFuture
     ) throws -> [Stats] {
+        let regexPattern = #"(.*)\s__WiFiLQAMgrLogStats\((.*):.*: Rssi:\s(-?\d{1,3})\s"#
         var statistics: [Stats] = []
 
-        let regexPattern = #"(.*)\s__WiFiLQAMgrLogStats\((.*):.*: Rssi:\s(-?\d{1,3})\s"#
+        verbosePrint("Info: Start searching for matching text patterns in file.")
+
         let matches = try getMatches(to: regexPattern, from: text)
+
+        verbosePrint("Info: End searching for matching text patterns in file.")
+        verbosePrint("Info: Start retrieving values from matching text patterns.")
 
         for match in matches {
             guard let rawDate = getValue(in: match.range(at: 1), from: text) else {
-                if verbose {
-                    print("Warning: Ignoring current match because of missing date value.")
-                }
+                verbosePrint("Warning: Ignoring current match because of missing date value.")
                 continue
             }
 
-            guard let date = date(fromLog: rawDate) else {
-                if verbose {
-                    print("Warning: Can't parse date: \(rawDate)")
+            let date: Date? = {
+                if let match = try? getMatches(to: DatePattern.version1.rawValue, from: rawDate).first {
+                    if let value = getValue(in: match.range, from: rawDate) {
+                        return DatePattern.dateFormatterForVersion1.date(from: value)
+                    }
+                } else if let match = try? getMatches(to: DatePattern.version2.rawValue, from: rawDate).first {
+                    if let value = getValue(in: match.range, from: rawDate) {
+                        return DatePattern.dateFormatterForVersion2.date(from: value)
+                    }
                 }
+
+                return nil
+            }()
+
+            guard let date = date else {
+                verbosePrint("Warning: Can't parse date: \(rawDate)")
                 continue
             }
 
@@ -122,22 +132,20 @@ struct Parse: ParsableCommand {
             }
 
             guard let wifi = getValue(in: match.range(at: 2), from: text) else {
-                if verbose {
-                    print("Warning: Ignoring current match because of missing wifi value.")
-                }
+                verbosePrint("Warning: Ignoring current match because of missing wifi value.")
                 continue
             }
 
             guard let rssi = getValue(in: match.range(at: 3), from: text) else {
-                if verbose {
-                    print("Warning: Ignoring current match because of missing rssi value.")
-                }
+                verbosePrint("Warning: Ignoring current match because of missing rssi value.")
                 continue
             }
 
             let stats = Stats(date: date, ssid: wifi, value: rssi)
             statistics.append(stats)
         }
+
+        verbosePrint("Info: End retrieving values from matching text patterns.")
 
         return statistics
     }
@@ -158,9 +166,11 @@ struct Parse: ParsableCommand {
         _ statistics: [Stats],
         inFile url: URL
     ) throws {
+        verbosePrint("Info: Start writing statistic in file.")
         let encoder = CSVEncoder()
         encoder.headers = ["date", "time", "network", "ssid", "measurement", "-dBm"]
         try encoder.encode(statistics, into: url)
+        verbosePrint("Info: End writing statistic in file.")
     }
 
     /// Retrieves matching parts of the text by filtering it with provided regex pattern.
@@ -188,13 +198,6 @@ struct Parse: ParsableCommand {
         return nil
     }
 
-    /// A method to create a date instance from the raw string read from the log file.
-    /// - Parameter date: Raw string date.
-    /// - Returns: Date instance.
-    func date(fromLog string: String) -> Date? {
-        Self.inputDateFormatter.date(from: string)
-    }
-
     /// A method to create a date instance from the raw string received from Terminal input.
     /// - Parameter string: Raw string date.
     /// - Returns: Date instance.
@@ -205,4 +208,33 @@ struct Parse: ParsableCommand {
 
         return Self.inputDateFormatter.date(from: string)
     }
+
+    private func verbosePrint(_ items: Any...) {
+        if verbose {
+            Swift.print(CFAbsoluteTimeGetCurrent(), items)
+        }
+    }
+}
+
+extension ParseCommand {
+    enum DatePattern: String {
+        /// Date pattern for `03/23/2022 12:40:16.307`
+        case version1 = #"\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}.\d*"#
+        /// Date pattern for `2022-04-05 10:25:59.649357 +0300`
+        case version2 = #"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d* \+\d{4}"#
+    }
+}
+
+extension ParseCommand.DatePattern {
+    static let dateFormatterForVersion1: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy HH:mm:ss.SSS"
+        return formatter
+    }()
+
+    static let dateFormatterForVersion2: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS Z"
+        return formatter
+    }()
 }
