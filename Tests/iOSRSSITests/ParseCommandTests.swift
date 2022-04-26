@@ -18,7 +18,7 @@ class ParseCommandTests: XCTestCase {
         03/11/2022 11:25:15.557 __WiFiVirtualInterfaceProcessAwdlStatisticsEvent: received APPLE80211_M_AWDL_STATISTICS event.
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text)
@@ -36,7 +36,7 @@ class ParseCommandTests: XCTestCase {
         03/11/2022 11:25:15.557 __WiFiVirtualInterfaceProcessAwdlStatisticsEvent: received APPLE80211_M_AWDL_STATISTICS event.
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text)
@@ -54,7 +54,7 @@ class ParseCommandTests: XCTestCase {
         default    2022-04-05 10:23:09.043814 +0300    kernel    LQM-WiFi: Channel Scores  ChanQual Score = 3  TxLoss Score = 5  RxLoss Score = 5  TxLat Score = 5 [1(100 %) / 0(0 %) / 0(0 %) / 0(0 %)] RxLat Score = 5 [0(100 %) / 0(0 %) / 0(0 %) / 0(0 %)]  intermittent-state = 0  single-outage = 2
 
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text)
@@ -73,7 +73,7 @@ class ParseCommandTests: XCTestCase {
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
         03/11/2022 11:25:17.000 __WiFiLQAMgrLogStats(mock-wifi:Stationary): Rssi: -52 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text)
@@ -86,6 +86,8 @@ class ParseCommandTests: XCTestCase {
         // Given
         let wifi = "mock-wifi"
         let rssi = "-77"
+        let snr = "35"
+        let noise = "-112"
         let inputDate = "03/11/2022 11:25:14.948"
         let outputDate = try XCTUnwrap(
             DateComponents(
@@ -102,20 +104,22 @@ class ParseCommandTests: XCTestCase {
 
         let text = """
         03/11/2022 11:25:14.948 __WiFiDeviceManagerEvaluate24GHzInfraNetworkState:isConnected Yes, isTimeSensitiveAppRunning No, isThereTrafficNow No
-        \(inputDate) __WiFiLQAMgrLogStats(\(wifi):Stationary): Rssi: \(rssi) {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
+        \(inputDate) __WiFiLQAMgrLogStats(\(wifi):Stationary): Rssi: \(rssi) {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: \(snr) Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         03/11/2022 11:25:14.949 WiFiLQAMgrCopyCoalescedUndispatchedLQMEvent: Rssi: -42 Snr:35 Cca: 35 TxFrames: 1 TxFail: 0 BcnRx: 1 BcnSch: 1  RxFrames: 2 RxRetries: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail:0 TxRetries: 0
         03/11/2022 11:25:15.557 __WiFiVirtualInterfaceProcessAwdlStatisticsEvent: received APPLE80211_M_AWDL_STATISTICS event.
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text)
 
         // Then
         XCTAssertEqual(result[0].date, outputDate, "Result should contain the same date as provided.")
-        XCTAssertEqual(result[0].value, rssi, "Result should contain the same rssi as provided.")
         XCTAssertEqual(result[0].ssid, wifi, "Result should contain the same wifi as provided.")
+        XCTAssertEqual(result[0].rssi, rssi, "Result should contain the same rssi as provided.")
+        XCTAssertEqual(result[0].noise, noise, "Result should contain the same noise as provided.")
+        XCTAssertEqual(result[0].snr, snr, "Result should contain the same snr as provided.")
     }
 
     func testTextParsingReturnsStatisticsFilteredByStartDate() throws {
@@ -153,7 +157,7 @@ class ParseCommandTests: XCTestCase {
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
         \(inputDate) __WiFiLQAMgrLogStats(mock-wifi:Stationary): Rssi: -42 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text, since: startDate)
@@ -198,7 +202,7 @@ class ParseCommandTests: XCTestCase {
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
         03/11/2022 11:27:16.948 __WiFiLQAMgrLogStats(mock-wifi:Stationary): Rssi: -42 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text, till: endDate)
@@ -255,7 +259,7 @@ class ParseCommandTests: XCTestCase {
         \(inputDate) __WiFiLQAMgrLogStats(mock-wifi:Stationary): Rssi: -42 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         03/11/2022 11:28:16.948 __WiFiLQAMgrLogStats(mock-wifi:Stationary): Rssi: -42 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text, since: startDate, till: endDate)
@@ -285,7 +289,7 @@ class ParseCommandTests: XCTestCase {
         03/11/2022 11:27:16.948 __WiFiLQAMgrLogStatsIncorrect(mock-wifi:Stationary): Rssi: -42 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         \(inputDate) __WiFiLQAMgrLogStats(mock-wifi:Stationary): Rssi: -43 {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: 35 Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         """
-        let sut = try parse(ParseCommand.self, ["parse"])
+        let sut = try parse(ParseCommand.self, ["parse", "fake-input-file", "fake-output-file"])
 
         // When
         let result = try sut.parse(text)
