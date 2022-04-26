@@ -87,7 +87,7 @@ struct ParseCommand: ParsableCommand {
         since startDate: Date = .distantPast,
         till endDate: Date = .distantFuture
     ) throws -> [Stats] {
-        let regexPattern = #"(.*)\s__WiFiLQAMgrLogStats\((.*):.*: Rssi:\s(-?\d{1,3})\s"#
+        let regexPattern = #"(.*)\s__WiFiLQAMgrLogStats\((.*):.*:\sRssi:\s(-?\d{1,3})\s.*\sSnr:\s(-?\d{1,3})\s"#
         var statistics: [Stats] = []
 
         verbosePrint("Info: Start searching for matching text patterns in file.")
@@ -141,7 +141,12 @@ struct ParseCommand: ParsableCommand {
                 continue
             }
 
-            let stats = Stats(date: date, ssid: wifi, value: rssi)
+            guard let snr = getValue(in: match.range(at: 4), from: text) else {
+                verbosePrint("Warning: Ignoring current match because of missing snr value.")
+                continue
+            }
+
+            let stats = Stats(date: date, ssid: wifi, rssi: rssi, snr: snr)
             statistics.append(stats)
         }
 
@@ -168,7 +173,7 @@ struct ParseCommand: ParsableCommand {
     ) throws {
         verbosePrint("Info: Start writing statistic in file.")
         let encoder = CSVEncoder()
-        encoder.headers = ["date", "time", "network", "ssid", "measurement", "-dBm"]
+        encoder.headers = ["date", "time", "network", "ssid", "rssi", "noise", "snr"]
         try encoder.encode(statistics, into: url)
         verbosePrint("Info: End writing statistic in file.")
     }

@@ -52,19 +52,22 @@ Extract the log file from the compressed `wifimanager-03-11-2022__11/24/56.log.t
 Command-line tool will generate a `.csv` file output, like this:
 
 ```
-date,time,network,ssid,measurement,-dBm
-2022-03-11,11:26:45.276,WIFI,ALHN-E1DA,RSSI,-47
-2022-03-11,11:26:50.288,WIFI,ALHN-E1DA,RSSI,-48
-2022-03-11,11:26:55.302,WIFI,ALHN-E1DA,RSSI,-43
-2022-03-11,11:27:00.317,WIFI,ALHN-E1DA,RSSI,-46
-2022-03-11,11:27:05.324,WIFI,ALHN-E1DA,RSSI,-52
-2022-03-11,11:27:11.986,WIFI,EDGE-F52s,RSSI,-55
-2022-03-11,11:27:17.021,WIFI,EDGE-F52s,RSSI,-56
-2022-03-11,11:27:22.042,WIFI,EDGE-F52s,RSSI,-55
-2022-03-11,11:27:27.064,WIFI,EDGE-F52s,RSSI,-56
-2022-03-11,11:27:32.077,WIFI,EDGE-F52s,RSSI,-51
-2022-03-11,11:27:37.090,WIFI,EDGE-F52s,RSSI,-55
+date,time,network,ssid,rssi,noise,snr
+2022-03-11,11:26:55.302,WIFI,ALHN-E1DA,-43,-78,35
+2022-03-11,11:27:00.317,WIFI,ALHN-E1DA,-46,-81,35
+2022-03-11,11:27:05.324,WIFI,ALHN-E1DA,-52,-87,35
+2022-03-11,11:27:11.986,WIFI,EDGE-F52s,-55,-85,30
+2022-03-11,11:27:17.021,WIFI,EDGE-F52s,-56,-83,27
+2022-03-11,11:27:22.042,WIFI,EDGE-F52s,-55,-84,29
 ```
+
+* date - Log date in `yyyy-MM-dd` format.
+* time - Log time in `HH:mm:ss.SSS` format.
+* network - Network type, currently only WIFI is supported.
+* ssid - Access point name.
+* rssi - Received Signal Strength Indicator, measured in decibels. From 0 (zero) to -120 (minus 120), when looking at this value the closer to 0 (zero) the stronger the signal is which means it's better.
+* noise - Noise for the rssi, measured in decibels, 
+* snr - Signal-to-Noise Ratio, measured in decibels. Comprised of 2 values and is measured as a positive value between 0db and 120db and the closer it is to 120db the better.
 
 ## Help
 
