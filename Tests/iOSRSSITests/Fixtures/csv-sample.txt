@@ -1,0 +1,2 @@
+date,time,network,ssid,rssi,noise,snr,TxRate,RxRate
+2022-03-11,11:24:59.908,WIFI,demo,-80,-120,40,15000,60000

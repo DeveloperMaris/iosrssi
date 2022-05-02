@@ -12,9 +12,10 @@ struct Stats: Encodable {
     var date: Date
     var network: String = "WIFI"
     var ssid: String
-    var measurement: String = "RSSI"
     var rssi: String
     var snr: String
+    var txRate: String
+    var rxRate: String
 
     var noise: String {
         guard let rssi = Int(rssi), let snr = Int(snr) else {
@@ -32,6 +33,8 @@ struct Stats: Encodable {
         case rssi
         case noise
         case snr
+        case txRate = "TxRate"
+        case rxRate = "RxRate"
     }
 
     func encode(to encoder: Encoder) throws {
@@ -49,5 +52,7 @@ struct Stats: Encodable {
         try container.encode(rssi, forKey: .rssi)
         try container.encode(noise, forKey: .noise)
         try container.encode(snr, forKey: .snr)
+        try container.encode(txRate, forKey: .txRate)
+        try container.encode(rxRate, forKey: .rxRate)
     }
 }
