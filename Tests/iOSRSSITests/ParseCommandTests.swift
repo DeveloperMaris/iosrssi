@@ -82,12 +82,14 @@ class ParseCommandTests: XCTestCase {
         XCTAssertEqual(result.count, 2, "Result should contain 2 items in the list.")
     }
 
-    func testTextParsingReturnsStatistics() throws {
+    func testTextParsingReturnsCorrectStatisticValues() throws {
         // Given
         let wifi = "mock-wifi"
         let rssi = "-77"
         let snr = "35"
         let noise = "-112"
+        let txRate = "144444"
+        let rxRate = "130000"
         let inputDate = "03/11/2022 11:25:14.948"
         let outputDate = try XCTUnwrap(
             DateComponents(
@@ -104,7 +106,7 @@ class ParseCommandTests: XCTestCase {
 
         let text = """
         03/11/2022 11:25:14.948 __WiFiDeviceManagerEvaluate24GHzInfraNetworkState:isConnected Yes, isTimeSensitiveAppRunning No, isThereTrafficNow No
-        \(inputDate) __WiFiLQAMgrLogStats(\(wifi):Stationary): Rssi: \(rssi) {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: \(snr) Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
+        \(inputDate) __WiFiLQAMgrLogStats(\(wifi):Stationary): Rssi: \(rssi) {-42 -43} Channel: 6 Bandwidth: 20Mhz Snr: \(snr) Cca: 35 (S:0 O:16 I:18) TxPer: 0.0% (1) BcnPer: 0.0% (1, 56.5%) RxFrms: 2 RxRetryFrames: 0 TxRate: \(txRate) RxRate: \(rxRate) FBRate: 43333 TxFwFrms: 4 TxFwFail: 0 TxReTrans: 0 time: 48.3secs fgApp: (null)
         03/11/2022 11:25:14.949 WiFiLQAMgrCopyCoalescedUndispatchedLQMEvent: Rssi: -42 Snr:35 Cca: 35 TxFrames: 1 TxFail: 0 BcnRx: 1 BcnSch: 1  RxFrames: 2 RxRetries: 0 TxRate: 144444 RxRate: 130000 FBRate: 43333 TxFwFrms: 4 TxFwFail:0 TxRetries: 0
         03/11/2022 11:25:15.557 __WiFiVirtualInterfaceProcessAwdlStatisticsEvent: received APPLE80211_M_AWDL_STATISTICS event.
         03/11/2022 11:25:15.557 WiFiMetricsManagerSubmitSDBTDMStats: skipping this metric submission
@@ -115,11 +117,14 @@ class ParseCommandTests: XCTestCase {
         let result = try sut.parse(text)
 
         // Then
-        XCTAssertEqual(result[0].date, outputDate, "Result should contain the same date as provided.")
-        XCTAssertEqual(result[0].ssid, wifi, "Result should contain the same wifi as provided.")
-        XCTAssertEqual(result[0].rssi, rssi, "Result should contain the same rssi as provided.")
-        XCTAssertEqual(result[0].noise, noise, "Result should contain the same noise as provided.")
-        XCTAssertEqual(result[0].snr, snr, "Result should contain the same snr as provided.")
+        let stats = result[0]
+        XCTAssertEqual(stats.date, outputDate, "Result should contain the same date as provided.")
+        XCTAssertEqual(stats.ssid, wifi, "Result should contain the same wifi as provided.")
+        XCTAssertEqual(stats.rssi, rssi, "Result should contain the same rssi as provided.")
+        XCTAssertEqual(stats.noise, noise, "Result should contain the same noise as provided.")
+        XCTAssertEqual(stats.snr, snr, "Result should contain the same snr as provided.")
+        XCTAssertEqual(stats.txRate, txRate, "Result should contain the same TxRate as provided.")
+        XCTAssertEqual(stats.rxRate, rxRate, "Result should contain the same RxRate as provided.")
     }
 
     func testTextParsingReturnsStatisticsFilteredByStartDate() throws {
@@ -297,9 +302,5 @@ class ParseCommandTests: XCTestCase {
         // Then
         XCTAssertEqual(result.count, 1, "Result should contain 1 item in the list.")
         XCTAssertEqual(result[0].date, outputDate, "Result should contain the same date as provided.")
-    }
-
-    private func parse<A>(_ type: A.Type, _ arguments: [String]) throws -> A where A: ParsableCommand {
-        try XCTUnwrap(RootCommand.parseAsRoot(arguments) as? A)
     }
 }

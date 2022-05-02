@@ -17,6 +17,8 @@ struct ParseCommand: ParsableCommand {
         return formatter
     }()
 
+    private static let regexPattern = #"(.*)\s__WiFiLQAMgrLogStats\((.*):.*:\sRssi:\s(-?\d{1,3})\s.*\sSnr:\s(-?\d{1,3})\s.*\sTxRate:\s(\d+)\sRxRate:\s(\d+)\s"#
+
     public static let configuration = CommandConfiguration(
         commandName: "parse",
         abstract: "Parse the wifi sysdiagnose log file to retrieve RSSI statistics."
@@ -62,7 +64,7 @@ struct ParseCommand: ParsableCommand {
         do {
             let content = try read(fileAt: inputURL)
             let statistics = try parse(content, since: startDate, till: endDate)
-            try writeAsCSV(statistics, inFile: outputURL)
+            try write(statistics, as: .csv, inFile: outputURL)
 
             print("File successfully parsed.")
             print("Retrieved \(statistics.count) records.")
@@ -87,12 +89,11 @@ struct ParseCommand: ParsableCommand {
         since startDate: Date = .distantPast,
         till endDate: Date = .distantFuture
     ) throws -> [Stats] {
-        let regexPattern = #"(.*)\s__WiFiLQAMgrLogStats\((.*):.*:\sRssi:\s(-?\d{1,3})\s.*\sSnr:\s(-?\d{1,3})\s"#
         var statistics: [Stats] = []
 
         verbosePrint("Info: Start searching for matching text patterns in file.")
 
-        let matches = try getMatches(to: regexPattern, from: text)
+        let matches = try getMatches(to: Self.regexPattern, from: text)
 
         verbosePrint("Info: End searching for matching text patterns in file.")
         verbosePrint("Info: Start retrieving values from matching text patterns.")
@@ -146,7 +147,17 @@ struct ParseCommand: ParsableCommand {
                 continue
             }
 
-            let stats = Stats(date: date, ssid: wifi, rssi: rssi, snr: snr)
+            guard let txRate = getValue(in: match.range(at: 5), from: text) else {
+                verbosePrint("Warning: Ignoring current match because of missing TxRate value.")
+                continue
+            }
+
+            guard let rxRate = getValue(in: match.range(at: 6), from: text) else {
+                verbosePrint("Warning: Ignoring current match because of missing RxRate value.")
+                continue
+            }
+
+            let stats = Stats(date: date, ssid: wifi, rssi: rssi, snr: snr, txRate: txRate, rxRate: rxRate)
             statistics.append(stats)
         }
 
@@ -162,20 +173,42 @@ struct ParseCommand: ParsableCommand {
         return try String(contentsOf: url)
     }
 
-    /// Write statistical records into a CSV format file.
-    /// - Parameters:
-    ///   - statistics: List of statistical records.
-    ///   - url: Path to the output file.
-    ///   - formatter: Statistical record entity date formatter.
+
     func writeAsCSV(
         _ statistics: [Stats],
         inFile url: URL
     ) throws {
         verbosePrint("Info: Start writing statistic in file.")
         let encoder = CSVEncoder()
-        encoder.headers = ["date", "time", "network", "ssid", "rssi", "noise", "snr"]
+        encoder.headers = ["date", "time", "network", "ssid", "rssi", "noise", "snr", "TxRate", "RxRate"]
         try encoder.encode(statistics, into: url)
         verbosePrint("Info: End writing statistic in file.")
+    }
+
+    /// Write statistical records into a CSV format file.
+    /// - Parameters:
+    ///   - statistics: List of statistical records.
+    ///   - type: The output file format, currently only possibility is the `.csv` format.
+    ///   - url: Path to the output file.
+    func write(_ statistics: [Stats], as type: OutputFileType, inFile url: URL) throws {
+        verbosePrint("Info: Encode statistics as \(type).")
+        let data: Data
+
+        switch type {
+        case .csv:
+            data = try encodeStatisticsAsCSV(statistics)
+        }
+
+        verbosePrint("Info: Write statistics in file: \(url).")
+        try data.write(to: url)
+
+        verbosePrint("Info: Write statistics succeeded in file: \(url).")
+    }
+
+    func encodeStatisticsAsCSV(_ statistics: [Stats]) throws -> Data {
+        let encoder = CSVEncoder()
+        encoder.headers = ["date", "time", "network", "ssid", "rssi", "noise", "snr", "TxRate", "RxRate"]
+        return try encoder.encode(statistics)
     }
 
     /// Retrieves matching parts of the text by filtering it with provided regex pattern.
@@ -227,6 +260,12 @@ extension ParseCommand {
         case version1 = #"\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}.\d*"#
         /// Date pattern for `2022-04-05 10:25:59.649357 +0300`
         case version2 = #"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d* \+\d{4}"#
+    }
+}
+
+extension ParseCommand {
+    enum OutputFileType {
+        case csv
     }
 }
 
