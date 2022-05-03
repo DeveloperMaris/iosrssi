@@ -12,17 +12,13 @@ struct Stats: Encodable {
     var date: Date
     var network: String = "WIFI"
     var ssid: String
-    var rssi: String
-    var snr: String
-    var txRate: String
-    var rxRate: String
+    var rssi: Int
+    var snr: Int
+    var txRate: Measurement<UnitInformationStorage>
+    var rxRate: Measurement<UnitInformationStorage>
 
-    var noise: String {
-        guard let rssi = Int(rssi), let snr = Int(snr) else {
-            return ""
-        }
-
-        return String(rssi - snr)
+    var noise: Int {
+        rssi - snr
     }
 
     enum CodingKeys: String, CodingKey {
@@ -44,6 +40,16 @@ struct Stats: Encodable {
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "HH:mm:ss.SSS"
 
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.maximumFractionDigits = 2
+        numberFormatter.minimumFractionDigits = 2
+        numberFormatter.groupingSeparator = ""
+        numberFormatter.decimalSeparator = "."
+
+        let txRate = NSNumber(value: self.txRate.converted(to: .megabits).value)
+        let rxRate = NSNumber(value: self.rxRate.converted(to: .megabits).value)
+
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(dateFormatter.string(from: date), forKey: .date)
         try container.encode(timeFormatter.string(from: date), forKey: .time)
@@ -52,7 +58,7 @@ struct Stats: Encodable {
         try container.encode(rssi, forKey: .rssi)
         try container.encode(noise, forKey: .noise)
         try container.encode(snr, forKey: .snr)
-        try container.encode(txRate, forKey: .txRate)
-        try container.encode(rxRate, forKey: .rxRate)
+        try container.encode(numberFormatter.string(from: txRate), forKey: .txRate)
+        try container.encode(numberFormatter.string(from: rxRate), forKey: .rxRate)
     }
 }

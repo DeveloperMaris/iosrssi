@@ -14,7 +14,7 @@ struct RootCommand: ParsableCommand {
             A Swift command-line tool to parse iOS device sysdiagnose \
             log files and retrieve the wifi network RSSI statistics.
             """,
-        version: "1.6.0",
+        version: "1.6.1",
         subcommands: [ParseCommand.self]
     )
 
