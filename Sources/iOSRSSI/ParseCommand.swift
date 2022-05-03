@@ -132,32 +132,43 @@ struct ParseCommand: ParsableCommand {
                 break
             }
 
-            guard let wifi = getValue(in: match.range(at: 2), from: text) else {
+            guard let ssid = getValue(in: match.range(at: 2), from: text) else {
                 verbosePrint("Warning: Ignoring current match because of missing wifi value.")
                 continue
             }
 
-            guard let rssi = getValue(in: match.range(at: 3), from: text) else {
+            guard let rawRSSI = getValue(in: match.range(at: 3), from: text), let rssi = Int(rawRSSI) else {
                 verbosePrint("Warning: Ignoring current match because of missing rssi value.")
                 continue
             }
 
-            guard let snr = getValue(in: match.range(at: 4), from: text) else {
+            guard let rawSNR = getValue(in: match.range(at: 4), from: text), let snr = Int(rawSNR) else {
                 verbosePrint("Warning: Ignoring current match because of missing snr value.")
                 continue
             }
 
-            guard let txRate = getValue(in: match.range(at: 5), from: text) else {
+            guard let rawTxRate = getValue(in: match.range(at: 5), from: text), let txRate = Double(rawTxRate) else {
                 verbosePrint("Warning: Ignoring current match because of missing TxRate value.")
                 continue
             }
 
-            guard let rxRate = getValue(in: match.range(at: 6), from: text) else {
+            guard let rawRxRate = getValue(in: match.range(at: 6), from: text), let rxRate = Double(rawRxRate) else {
                 verbosePrint("Warning: Ignoring current match because of missing RxRate value.")
                 continue
             }
 
-            let stats = Stats(date: date, ssid: wifi, rssi: rssi, snr: snr, txRate: txRate, rxRate: rxRate)
+            let txRateMeasurement = Measurement(value: txRate, unit: UnitInformationStorage.kilobits)
+            let rxRateMeasurement = Measurement(value: rxRate, unit: UnitInformationStorage.kilobits)
+
+            let stats = Stats(
+                date: date,
+                ssid: ssid,
+                rssi: rssi,
+                snr: snr,
+                txRate: txRateMeasurement,
+                rxRate: rxRateMeasurement
+            )
+
             statistics.append(stats)
         }
 

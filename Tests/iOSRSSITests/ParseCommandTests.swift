@@ -85,11 +85,11 @@ class ParseCommandTests: XCTestCase {
     func testTextParsingReturnsCorrectStatisticValues() throws {
         // Given
         let wifi = "mock-wifi"
-        let rssi = "-77"
-        let snr = "35"
-        let noise = "-112"
-        let txRate = "144444"
-        let rxRate = "130000"
+        let rssi = -77
+        let snr = 35
+        let noise = -112
+        let txRate = 144444
+        let rxRate = 130000
         let inputDate = "03/11/2022 11:25:14.948"
         let outputDate = try XCTUnwrap(
             DateComponents(
@@ -123,8 +123,8 @@ class ParseCommandTests: XCTestCase {
         XCTAssertEqual(stats.rssi, rssi, "Result should contain the same rssi as provided.")
         XCTAssertEqual(stats.noise, noise, "Result should contain the same noise as provided.")
         XCTAssertEqual(stats.snr, snr, "Result should contain the same snr as provided.")
-        XCTAssertEqual(stats.txRate, txRate, "Result should contain the same TxRate as provided.")
-        XCTAssertEqual(stats.rxRate, rxRate, "Result should contain the same RxRate as provided.")
+        XCTAssertEqual(stats.txRate.value, Double(txRate), "Result should contain the same TxRate as provided.")
+        XCTAssertEqual(stats.rxRate.value, Double(rxRate), "Result should contain the same RxRate as provided.")
     }
 
     func testTextParsingReturnsStatisticsFilteredByStartDate() throws {

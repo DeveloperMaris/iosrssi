@@ -24,6 +24,8 @@ let package = Package(
             ]),
         .testTarget(
             name: "iOSRSSITests",
-            dependencies: ["iOSRSSI"])
+            dependencies: ["iOSRSSI"],
+            resources: [.copy("Fixtures")]
+        )
     ]
 )
